@@ -51,10 +51,11 @@ func handleClosed(ctx context.Context, client *github.Client, prEvent *github.Pu
 		return err
 	}
 
-	tagURL, err := createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum)
+	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum)
 	if err != nil {
 		return handleError(err)
 	}
+	tagURL := fmt.Sprintf("%s/releases/tag/%s", repo.GetHTMLURL(), versionNum)
 
 	commentBody := fmt.Sprintf("[%s](%s) created on %s", versionNum, tagURL, commitSHA)
 	comment := &github.IssueComment{

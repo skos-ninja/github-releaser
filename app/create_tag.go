@@ -7,7 +7,7 @@ import (
 	"github.com/google/go-github/v35/github"
 )
 
-func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, commit, version string) (string, error) {
+func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, commit, version string) error {
 	tag := &github.Tag{
 		Tag:     &version,
 		SHA:     &commit,
@@ -19,7 +19,7 @@ func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, 
 	}
 	t, _, err := client.Git.CreateTag(ctx, repoOwner, repoName, tag)
 	if err != nil {
-		return "", handleError(err)
+		return handleError(err)
 	}
 
 	ref := &github.Reference{
@@ -28,8 +28,8 @@ func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, 
 	}
 	_, _, err = client.Git.CreateRef(ctx, repoOwner, repoName, ref)
 	if err != nil {
-		return "", handleError(err)
+		return handleError(err)
 	}
 
-	return fmt.Sprintf("https://github.com/%s/%s/releases/tag/%s", repoOwner, repoName, version), nil
+	return nil
 }
