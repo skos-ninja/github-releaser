@@ -48,6 +48,6 @@ func handleClosed(ctx context.Context, client *github.Client, prEvent *github.Pu
 		return err
 	}
 
-	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, pr.GetHTMLURL(), pr.GetNumber())
+	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, repo.GetHTMLURL(), pr.GetNumber())
 	return err
 }
