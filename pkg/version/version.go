@@ -40,7 +40,7 @@ func FindNextVersion(t VersionType, v string) (string, error) {
 		pre := version.Prerelease()
 		if pre == "" {
 			// As the current pre version doesn't match
-			version, err = version.SetPrerelease("pre0")
+			version, err = version.IncPatch().SetPrerelease("pre0")
 			if err != nil {
 				return "", err
 			}

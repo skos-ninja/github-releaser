@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/google/go-github/v35/github"
+	"github.com/kr/pretty"
 )
 
 func (a *app) HandleWebhook(ctx context.Context, prEvent *github.PullRequestEvent) error {
@@ -23,9 +24,24 @@ func (a *app) HandleWebhook(ctx context.Context, prEvent *github.PullRequestEven
 	action := prEvent.GetAction()
 	switch action {
 	case "closed":
-		return handleClosed(ctx, client, prEvent)
+		err = handleClosed(ctx, client, prEvent)
+	case "labeled":
+		err = handleLabeled(ctx, client, prEvent)
+	default:
+		log.Printf("No handler for action: %s\n", action)
 	}
 
-	log.Printf("No handler for action: %s\n", action)
+	if err != nil {
+		return handleError(err)
+	}
 	return nil
+}
+
+func handleError(err error) error {
+	if e, ok := err.(*github.ErrorResponse); ok {
+		pretty.Println(e.Errors)
+		return e
+	}
+
+	return err
 }

@@ -79,7 +79,7 @@ func TestIncreaseVersion(t *testing.T) {
 		{
 			currentVersion:      "v1.1.1",
 			versionIncreaseType: Prerelease,
-			nextVersion:         "v1.1.1-pre0",
+			nextVersion:         "v1.1.2-pre0",
 		},
 		{
 			currentVersion:      "v1.1.1-pre0",

@@ -20,16 +20,16 @@ func getLatestVersion(ctx context.Context, client *github.Client, repoOwner, rep
 
 	versions := []*semver.Version{}
 	for _, ref := range refs {
-		t := ref.GetObject().GetType()
-		if t != "commit" && t != "tag" {
-			log.Printf("%s: %s\n", ref.GetRef(), ref.GetObject().GetType())
-			continue
-		}
-
 		tag := strings.TrimPrefix(ref.GetRef(), "refs/tags/")
 		v, err := semver.NewVersion(tag)
 		if err != nil {
 			log.Printf("%s: %s\n", tag, err.Error())
+			continue
+		}
+
+		t := ref.GetObject().GetType()
+		if t != "commit" && t != "tag" {
+			log.Printf("%s: %s\n", ref.GetRef(), t)
 			continue
 		}
 
@@ -42,6 +42,5 @@ func getLatestVersion(ctx context.Context, client *github.Client, repoOwner, rep
 	}
 
 	version := versions[len(versions)-1].Original()
-	log.Println(version)
 	return version, nil
 }

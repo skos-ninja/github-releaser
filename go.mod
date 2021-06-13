@@ -12,6 +12,7 @@ require (
 	github.com/kr/pretty v0.2.1
 	github.com/skos-ninja/config-loader v0.0.0-20210530160620-dfcaee536361
 	github.com/spf13/cobra v1.1.3
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20200803210538-64077c9b5642 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
