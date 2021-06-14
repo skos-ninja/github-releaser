@@ -33,7 +33,6 @@ WORKDIR /app/
 COPY --from=builder /app/main .
 
 ENV CGO_ENABLED=0
-ENV COMMIT_SHA=${COMMIT}
 ENV GIN_MODE=release
 
 EXPOSE 8080
