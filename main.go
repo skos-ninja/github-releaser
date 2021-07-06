@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/skos-ninja/github-releaser/app"
 	"github.com/skos-ninja/github-releaser/rpc"
@@ -69,7 +70,9 @@ func runE(cmd *cobra.Command, args []string) error {
 func setupGithubClient(cfg Github) (*ghinstallation.AppsTransport, *github.Client, error) {
 	tr := http.DefaultTransport
 
-	itr, err := ghinstallation.NewAppsTransport(tr, cfg.AppId, []byte(cfg.PrivateKey))
+	// Due to envs vars loading \n as escaped we need to unescape
+	privateKey := strings.ReplaceAll(cfg.PrivateKey, "\\n", "\n")
+	itr, err := ghinstallation.NewAppsTransport(tr, cfg.AppId, []byte(privateKey))
 	if err != nil {
 		return nil, nil, err
 	}
