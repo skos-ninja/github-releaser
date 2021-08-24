@@ -24,7 +24,7 @@ func handleClosed(ctx context.Context, client *github.Client, prEvent *github.Pu
 	repoOwner := repo.GetOwner().GetLogin()
 	repoName := repo.GetName()
 
-	if !pr.GetMerged() && repo.GetDefaultBranch() != pr.GetBase().GetRef() {
+	if !pr.GetMerged() || repo.GetDefaultBranch() != pr.GetBase().GetRef() {
 		// Ignoring as the pr was not merged into default
 		return nil
 	}
