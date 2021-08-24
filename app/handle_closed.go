@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/skos-ninja/github-releaser/pkg/version"
@@ -24,7 +25,7 @@ func handleClosed(ctx context.Context, client *github.Client, prEvent *github.Pu
 	repoOwner := repo.GetOwner().GetLogin()
 	repoName := repo.GetName()
 
-	if !pr.GetMerged() && repo.GetDefaultBranch() != pr.GetBase().GetRef() {
+	if !pr.GetMerged() || repo.GetDefaultBranch() != pr.GetBase().GetRef() {
 		// Ignoring as the pr was not merged into default
 		return nil
 	}
@@ -49,5 +50,9 @@ func handleClosed(ctx context.Context, client *github.Client, prEvent *github.Pu
 	}
 
 	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, repo.GetHTMLURL(), pr.GetNumber())
+	if err != nil {
+		commentBody := fmt.Sprintf("Failed to make tag: `%s`", err.Error())
+		createComment(ctx, client, pr.GetNumber(), repoOwner, repoName, commentBody)
+	}
 	return err
 }

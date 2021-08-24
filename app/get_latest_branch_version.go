@@ -44,7 +44,7 @@ func getLatestBranchVersion(ctx context.Context, client *github.Client, repoOwne
 		tag := strings.TrimPrefix(ref.GetRef(), "refs/tags/")
 		v, err := semver.NewVersion(tag)
 		if err != nil {
-			log.Printf("%s: %s\n", tag, err.Error())
+			log.Printf("invalid semver %s: %s\n", tag, err.Error())
 			continue
 		}
 
@@ -57,9 +57,8 @@ func getLatestBranchVersion(ctx context.Context, client *github.Client, repoOwne
 					break
 				}
 			}
-		} else if t == "tag" {
 		} else {
-			log.Printf("%s: %s\n", ref.GetRef(), t)
+			log.Printf("invalid ref %s: %s\n", ref.GetRef(), t)
 			continue
 		}
 
@@ -68,7 +67,7 @@ func getLatestBranchVersion(ctx context.Context, client *github.Client, repoOwne
 
 	var vs semver.Collection = versions
 	if len(repoVersions) != 0 {
-		log.Println("Using branch versions as ")
+		log.Println("Using tags on branch only")
 		vs = repoVersions
 	}
 
