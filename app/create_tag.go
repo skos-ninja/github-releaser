@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/google/go-github/v35/github"
 )
@@ -28,6 +29,7 @@ func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, 
 	}
 	_, _, err = client.Git.CreateRef(ctx, repoOwner, repoName, ref)
 	if err != nil {
+		log.Printf("Failed to make ref: %s\n", version)
 		return handleError(err)
 	}
 

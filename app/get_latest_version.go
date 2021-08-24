@@ -23,13 +23,13 @@ func getLatestVersion(ctx context.Context, client *github.Client, repoOwner, rep
 		tag := strings.TrimPrefix(ref.GetRef(), "refs/tags/")
 		v, err := semver.NewVersion(tag)
 		if err != nil {
-			log.Printf("%s: %s\n", tag, err.Error())
+			log.Printf("invalid semver %s: %s\n", tag, err.Error())
 			continue
 		}
 
 		t := ref.GetObject().GetType()
 		if t != "commit" && t != "tag" {
-			log.Printf("%s: %s\n", ref.GetRef(), t)
+			log.Printf("invalid ref %s: %s\n", ref.GetRef(), t)
 			continue
 		}
 

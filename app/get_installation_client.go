@@ -27,7 +27,7 @@ func (a *app) GetInstallationClient(ctx context.Context, org, user string) (*git
 	} else if user != "" {
 		install, _, err = a.github.Apps.FindUserInstallation(ctx, user)
 	} else {
-		err = errors.New("User or org not provided.")
+		err = errors.New("user or org not provided")
 	}
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (a *app) GetInstallationClient(ctx context.Context, org, user string) (*git
 
 	id := install.GetID()
 	if id == 0 {
-		return nil, errors.New("App not installed")
+		return nil, errors.New("app not installed")
 	}
 
 	itr := ghinstallation.NewFromAppsTransport(a.appTr, id)
