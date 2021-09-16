@@ -29,7 +29,7 @@ func getLatestVersion(ctx context.Context, client *github.Client, repoOwner, rep
 
 		t := ref.GetObject().GetType()
 		if t != "commit" && t != "tag" {
-			log.Printf("invalid ref %s: %s\n", ref.GetRef(), t)
+			log.Printf("invalid ref %s: %s\n", tag, t)
 			continue
 		}
 

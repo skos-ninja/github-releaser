@@ -57,8 +57,10 @@ func getLatestBranchVersion(ctx context.Context, client *github.Client, repoOwne
 					break
 				}
 			}
+		} else if v.Prerelease() == "" && t == "tag" {
+			repoVersions = append(repoVersions, v)
 		} else {
-			log.Printf("invalid ref %s: %s\n", ref.GetRef(), t)
+			log.Printf("invalid ref %s: %s\n", tag, t)
 			continue
 		}
 
