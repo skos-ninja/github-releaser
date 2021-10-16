@@ -49,7 +49,7 @@ func handleClosed(ctx context.Context, client *github.Client, prEvent *github.Pu
 		return err
 	}
 
-	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, repo.GetHTMLURL(), pr.GetNumber())
+	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, pr.GetNumber())
 	if err != nil {
 		commentBody := fmt.Sprintf("Failed to make tag: `%s`", err.Error())
 		createComment(ctx, client, pr.GetNumber(), repoOwner, repoName, commentBody)
