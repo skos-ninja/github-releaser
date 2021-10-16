@@ -29,6 +29,7 @@ func init() {
 
 	config.Init(cmd)
 	cmd.Flags().IntP("port", "p", cfg.Port, "HTTP Listening port")
+	cmd.Flags().BoolP("impersonatetags", "i", cfg.ImpersonateTags, "Impersonate users when tagging")
 	cmd.Flags().Int("appid", int(cfg.Github.AppId), "")
 	cmd.Flags().String("webhooksecret", cfg.Github.WebhookSecretKey, "")
 	cmd.Flags().String("privatekey", cfg.Github.PrivateKey, "")
@@ -50,7 +51,7 @@ func runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	app, err := app.New(appTr, client)
+	app, err := app.New(appTr, client, cfg.ImpersonateTags)
 	if err != nil {
 		return err
 	}

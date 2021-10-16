@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-github/v35/github"
 )
 
-func handleClosed(ctx context.Context, client *github.Client, prEvent *github.PullRequestEvent) error {
+func (a *app) handleClosed(ctx context.Context, client *github.Client, prEvent *github.PullRequestEvent) error {
 	pr := prEvent.GetPullRequest()
 	if pr == nil {
 		// Ignoring as we are missing pull request data.
@@ -49,7 +49,7 @@ func handleClosed(ctx context.Context, client *github.Client, prEvent *github.Pu
 		return err
 	}
 
-	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, pr.GetNumber())
+	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, pr.GetNumber(), a.impersonateTags)
 	if err != nil {
 		commentBody := fmt.Sprintf("Failed to make tag: `%s`", err.Error())
 		createComment(ctx, client, pr.GetNumber(), repoOwner, repoName, commentBody)
