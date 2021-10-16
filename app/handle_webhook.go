@@ -24,9 +24,9 @@ func (a *app) HandleWebhook(ctx context.Context, prEvent *github.PullRequestEven
 	action := prEvent.GetAction()
 	switch action {
 	case "closed":
-		err = handleClosed(ctx, client, prEvent)
+		err = a.handleClosed(ctx, client, prEvent)
 	case "labeled":
-		err = handleLabeled(ctx, client, prEvent)
+		err = a.handleLabeled(ctx, client, prEvent)
 	default:
 		log.Printf("No handler for action: %s\n", action)
 	}

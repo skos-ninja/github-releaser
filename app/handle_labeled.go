@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/skos-ninja/github-releaser/pkg/version"
@@ -10,7 +11,7 @@ import (
 	"github.com/google/go-github/v35/github"
 )
 
-func handleLabeled(ctx context.Context, client *github.Client, prEvent *github.PullRequestEvent) error {
+func (a *app) handleLabeled(ctx context.Context, client *github.Client, prEvent *github.PullRequestEvent) error {
 	pr := prEvent.GetPullRequest()
 	if pr == nil {
 		// Ignoring as we are missing pull request data.
@@ -65,8 +66,10 @@ func handleLabeled(ctx context.Context, client *github.Client, prEvent *github.P
 
 	commitSHA := head.GetSHA()
 	prNum := pr.GetNumber()
-	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, prNum)
+	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, prNum, a.impersonateTags)
 	if err != nil {
+		commentBody := fmt.Sprintf("Failed to make tag: `%s`", err.Error())
+		createComment(ctx, client, pr.GetNumber(), repoOwner, repoName, commentBody)
 		return err
 	}
 

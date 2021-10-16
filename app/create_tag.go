@@ -9,19 +9,29 @@ import (
 	"github.com/google/go-github/v35/github"
 )
 
-func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, commit, version string, prNumber int) error {
+func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, commitSHA, version string, prNumber int, impersonateTags bool) error {
 	message, err := getTagMessage(ctx, client, repoOwner, repoName, prNumber)
 	if err != nil {
 		return handleError(err)
 	}
 
+	var tagger *github.CommitAuthor
+	if impersonateTags {
+		commit, _, err := client.Git.GetCommit(ctx, repoOwner, repoName, commitSHA)
+		if err != nil {
+			return handleError(err)
+		}
+		tagger = commit.Author
+	}
+
 	tag := &github.Tag{
 		Tag:     &version,
-		SHA:     &commit,
+		SHA:     &commitSHA,
 		Message: github.String(message),
+		Tagger:  tagger,
 		Object: &github.GitObject{
 			Type: github.String("commit"),
-			SHA:  &commit,
+			SHA:  &commitSHA,
 		},
 	}
 	t, _, err := client.Git.CreateTag(ctx, repoOwner, repoName, tag)
@@ -30,8 +40,10 @@ func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, 
 	}
 
 	ref := &github.Reference{
-		Ref:    github.String(fmt.Sprintf("refs/tags/%s", version)),
-		Object: t.Object,
+		Ref: github.String(fmt.Sprintf("refs/tags/%s", version)),
+		Object: &github.GitObject{
+			SHA: t.SHA,
+		},
 	}
 	_, _, err = client.Git.CreateRef(ctx, repoOwner, repoName, ref)
 	if err != nil {
@@ -39,7 +51,7 @@ func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, 
 		return handleError(err)
 	}
 
-	commentBody := fmt.Sprintf("[%s](../releases/tag/%s) created on %s", version, version, commit)
+	commentBody := fmt.Sprintf("[%s](../releases/tag/%s) created on %s", version, version, commitSHA)
 	err = createComment(ctx, client, prNumber, repoOwner, repoName, commentBody)
 	return err
 }

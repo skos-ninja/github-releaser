@@ -13,12 +13,13 @@ type App interface {
 }
 
 type app struct {
-	appTr      *ghinstallation.AppsTransport
-	github     *github.Client
-	installLru *simplelru.LRU
+	appTr           *ghinstallation.AppsTransport
+	github          *github.Client
+	installLru      *simplelru.LRU
+	impersonateTags bool
 }
 
-func New(appTr *ghinstallation.AppsTransport, github *github.Client) (App, error) {
+func New(appTr *ghinstallation.AppsTransport, github *github.Client, impersonateTags bool) (App, error) {
 	iLRU, err := simplelru.NewLRU(100, nil)
 	if err != nil {
 		return nil, err
@@ -28,5 +29,6 @@ func New(appTr *ghinstallation.AppsTransport, github *github.Client) (App, error
 		appTr,
 		github,
 		iLRU,
+		impersonateTags,
 	}, nil
 }

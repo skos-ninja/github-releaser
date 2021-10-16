@@ -50,7 +50,7 @@ func runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	app, err := app.New(appTr, client)
+	app, err := app.New(appTr, client, cfg.ImpersonateTags)
 	if err != nil {
 		return err
 	}

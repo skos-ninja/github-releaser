@@ -1,8 +1,9 @@
 package main
 
 type Config struct {
-	Github Github
-	Port   int `flag:"port" env:"HTTP_PORT"`
+	Github          Github
+	ImpersonateTags bool `flag:"impersonatetags" env:"IMPERSONATE_TAGS"`
+	Port            int  `flag:"port" env:"HTTP_PORT"`
 }
 
 type Github struct {
@@ -14,7 +15,8 @@ type Github struct {
 
 var (
 	cfg = &Config{
-		Github: Github{},
-		Port:   8080,
+		Github:          Github{},
+		ImpersonateTags: false,
+		Port:            8080,
 	}
 )
