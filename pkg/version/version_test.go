@@ -43,7 +43,6 @@ func TestPatchVersion(t *testing.T) {
 }
 
 func TestPreVersion(t *testing.T) {
-
 	nextVersion, err := FindNextVersion(Prerelease, v)
 	if err != nil {
 		t.Error(err)
