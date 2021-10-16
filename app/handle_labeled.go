@@ -65,7 +65,7 @@ func handleLabeled(ctx context.Context, client *github.Client, prEvent *github.P
 
 	commitSHA := head.GetSHA()
 	prNum := pr.GetNumber()
-	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, repo.GetHTMLURL(), prNum)
+	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, prNum)
 	if err != nil {
 		return err
 	}

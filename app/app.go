@@ -9,8 +9,6 @@ import (
 )
 
 type App interface {
-	GetZen(ctx context.Context) (string, error)
-
 	HandleWebhook(ctx context.Context, pr *github.PullRequestEvent) error
 }
 
