@@ -29,6 +29,7 @@ func init() {
 
 	config.Init(cmd)
 	cmd.Flags().IntP("port", "p", cfg.Port, "HTTP Listening port")
+	cmd.Flags().BoolP("impersonatetags", "i", cfg.ImpersonateTags, "Impersonate users when tagging")
 	cmd.Flags().Int("appid", int(cfg.Github.AppId), "")
 	cmd.Flags().String("webhooksecret", cfg.Github.WebhookSecretKey, "")
 	cmd.Flags().String("privatekey", cfg.Github.PrivateKey, "")
