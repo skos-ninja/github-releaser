@@ -53,12 +53,12 @@ func (a *app) handleClosed(ctx context.Context, client *github.Client, prEvent *
 		return nil
 	}
 
-	nextVerion, err := version.FindNextVersion(*versionType, latestVersion)
+	nextVersion, err := version.FindNextVersion(*versionType, latestVersion)
 	if err != nil {
 		return err
 	}
 
-	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, tagMessage, pr.GetNumber(), a.impersonateTags)
+	err = createTag(ctx, client, repoOwner, repoName, commitSHA, nextVersion, tagMessage, pr.GetNumber(), a.impersonateTags)
 	if err != nil {
 		commentBody := fmt.Sprintf("Failed to make tag: `%s`", err.Error())
 		createComment(ctx, client, pr.GetNumber(), repoOwner, repoName, commentBody)
@@ -68,7 +68,7 @@ func (a *app) handleClosed(ctx context.Context, client *github.Client, prEvent *
 
 func getVersionTypeAndTagMessage(ctx context.Context, client *github.Client, repoOwner, repoName string, prNumber int, latestVersion string, prTitle string, prLabels []*github.Label, includePre bool) (*version.VersionType, string) {
 	if versionType, parsedPrTitle := parseConventionalCommit(isDevelopmentVersion(latestVersion), prTitle); versionType != nil {
-		var tagMessage := getTagMessageForConventionalCommitIncrement(parsedPrTitle)
+		var tagMessage := getTagMessageForConventionalCommitIncrement(parsedPrTitle, prNumber)
 		return versionType, tagMessage
 	} else if versionType, _ := findVersionLabel(prLabels, includePre); versionType != nil{
 		var tagMessage := getTagMessageForLabelBasedIncrement(ctx, client, repoOwner, repoName, pNumber)
@@ -82,27 +82,27 @@ func isDevelopmentVersion(version string) bool {
 	return strings.HasPrefix(version, "v0")
 }
 
-func getTagMessageForConventionalCommitIncrement(parsedPrTitle ConventionalCommit) (string, error) {
+func getTagMessageForConventionalCommitIncrement(parsedPrTitle ConventionalCommit, prNumber int) (string, error) {
 	switch parsedPrTitle.Type {
 	case "feat":
-		return createTagMessage("features", parsedPrTitle.Description)
+		return createTagMessage("features", parsedPrTitle.Description, prNumber)
 	case "fix":
-		return createTagMessage("fixed", parsedPrTitle.Description)
+		return createTagMessage("fixed", parsedPrTitle.Description, prNumber)
     case "chore":
-		return createTagMessage("chores", parsedPrTitle.Description)
+		return createTagMessage("chores", parsedPrTitle.Description, prNumber)
 	case "perf":
-		return createTagMessage("improvements", parsedPrTitle.Description)
+		return createTagMessage("improvements", parsedPrTitle.Description, prNumber)
 	default:
 		// we map just the above ones to tag-police types: https://github.com/TrueLayer/tag-police/blob/master/tag_template.yml
 		// if not mapped, just use the release notes and add the type
-		return createTagMessage("release_notes", parsedPrTitle.Type + ": " + parsedPrTitle.Description)
+		return createTagMessage("release_notes", parsedPrTitle.Type + ": " + parsedPrTitle.Description, prNumber)
     }
 }
 
-func createTagMessage(sectionName string, singleItem string) string {
+func createTagMessage(sectionName string, singleItem string, prNumber int) string {
 	var message strings.Builder
 	message.WriteString("%s:\n", sectionName)
-	message.WriteString(fmt.Sprintf("  - \"%s\"\n", singleItem))
+	message.WriteString(fmt.Sprintf("  - \"%s [#%s]\"\n", singleItem, prNumber))
 	return message.String()
 }
 
