@@ -2,34 +2,40 @@ package app
 
 import (
 	"strings"
-	
-	"github.com/leodido/go-conventionalcommits"
+
+	conventionalcommitparser "github.com/release-lab/conventional-commit-parser"
+	"github.com/skos-ninja/github-releaser/pkg/version"
 )
 
-func parseConventionalCommit(isDevelopmentVersion bool, text string) (*version.VersionType, ConventionalCommit) {
-	parsedText, error := parser.NewMachine(WithTypes(conventionalcommits.TypesConventional)).Parse(text)
+func parseConventionalCommit(isDevelopmentVersion bool, text string) (*version.VersionType, conventionalcommitparser.Message) {
+	parsedText := conventionalcommitparser.Parse(text)
 
-	if error != nil {
-		// there was an error when parsing, the title does not follow the spec
-		return nil
+	if parsedText.Header == "" {
+		return nil, parsedText
 	}
-	
-	var versionType
+
+	var versionType string
 	if isDevelopmentVersion {
-		if parsedText.IsBreakingChange() {
-			versionType := "MINOR"
+		if strings.Contains(parsedText.Header, "!") {
+			versionType = "MINOR"
 		} else {
-			versionType := "PATCH"
+			versionType = "PATCH"
 		}
 	} else {
-		if parsedText.IsBreakingChange() {
-			versionType := "MAJOR"
-		} else if parsedText.Type == "feat" {
-			versionType := "MINOR"
+		if strings.Contains(parsedText.Header, "!") {
+			versionType = "MAJOR"
+		} else if parsedText.ParseHeader().Scope == "feat" {
+			versionType = "MINOR"
 		} else {
-			versionType := "PATCH"
+			versionType = "PATCH"
 		}
 	}
 
-	return versionType, parsedText
+	parsedVersionType, error := version.ParseVersionType(versionType)
+
+	if error != nil {
+		return nil, parsedText
+	}
+
+	return &parsedVersionType, parsedText
 }

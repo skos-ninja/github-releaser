@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/skos-ninja/github-releaser/pkg/version"
 
-	"github.com/google/go-github/v35/github"
+	conventionalcommitparser "github.com/release-lab/conventional-commit-parser"
 
-	"github.com/leodido/go-conventionalcommits"
+	"github.com/google/go-github/v35/github"
 )
 
 func (a *app) handleClosed(ctx context.Context, client *github.Client, prEvent *github.PullRequestEvent) error {
@@ -33,22 +34,25 @@ func (a *app) handleClosed(ctx context.Context, client *github.Client, prEvent *
 	}
 
 	commitSHA := pr.GetMergeCommitSHA()
-	log.Printf("PR: %v merged as %s with label %s\n", pr.GetNumber(), commitSHA, *versionType)
+	log.Printf("PR: %v merged as %s\n", pr.GetNumber(), commitSHA)
 
 	latestVersion, err := getLatestVersion(ctx, client, repoOwner, repoName)
 	if err != nil {
 		return err
 	}
 
-	versionType, tagMessage = getVersionTypeAndTagMessage(ctx, client, repoOwner, repoName, pr.GetNumber(), latestVersion, pr.Title, pr.Labels, false)
+	versionType, tagMessage, error := getVersionTypeAndTagMessage(ctx, client, repoOwner, repoName, pr.GetNumber(), latestVersion, *pr.Title, pr.Labels, false)
+	if error != nil {
+		return nil
+	}
 	if versionType == nil {
 		// PR does not have any of the following:
 		// - a semantic title
 		// - a valid label set
-		return nil	
+		return nil
 	}
 
-	if tagMessage == nil {
+	if tagMessage == "" {
 		// TODO throw an error, the tag message was not created
 		return nil
 	}
@@ -66,15 +70,15 @@ func (a *app) handleClosed(ctx context.Context, client *github.Client, prEvent *
 	return err
 }
 
-func getVersionTypeAndTagMessage(ctx context.Context, client *github.Client, repoOwner, repoName string, prNumber int, latestVersion string, prTitle string, prLabels []*github.Label, includePre bool) (*version.VersionType, string) {
+func getVersionTypeAndTagMessage(ctx context.Context, client *github.Client, repoOwner, repoName string, prNumber int, latestVersion string, prTitle string, prLabels []*github.Label, includePre bool) (*version.VersionType, string, error) {
 	if versionType, parsedPrTitle := parseConventionalCommit(isDevelopmentVersion(latestVersion), prTitle); versionType != nil {
-		var tagMessage := getTagMessageForConventionalCommitIncrement(parsedPrTitle, prNumber)
-		return versionType, tagMessage
-	} else if versionType, _ := findVersionLabel(prLabels, includePre); versionType != nil{
-		var tagMessage := getTagMessageForLabelBasedIncrement(ctx, client, repoOwner, repoName, pNumber)
-		return versionType, tagMessage
+		tagMessage := getTagMessageForConventionalCommitIncrement(parsedPrTitle, prNumber)
+		return versionType, tagMessage, nil
+	} else if versionType, _ := findVersionLabel(prLabels, includePre); versionType != nil {
+		tagMessage, error := getTagMessageForLabelBasedIncrement(ctx, client, repoOwner, repoName, prNumber)
+		return versionType, tagMessage, error
 	} else {
-		return nil, nil
+		return nil, "", nil
 	}
 }
 
@@ -82,42 +86,30 @@ func isDevelopmentVersion(version string) bool {
 	return strings.HasPrefix(version, "v0")
 }
 
-func getTagMessageForConventionalCommitIncrement(parsedPrTitle ConventionalCommit, prNumber int) (string, error) {
-	switch parsedPrTitle.Type {
+func getTagMessageForConventionalCommitIncrement(parsedPrTitle conventionalcommitparser.Message, prNumber int) string {
+	commitType := parsedPrTitle.ParseHeader().Type
+	commitScope := parsedPrTitle.ParseHeader().Scope
+	commitDescription := parsedPrTitle.ParseHeader().Subject
+
+	switch commitType {
 	case "feat":
-		return createTagMessage("features", parsedPrTitle.Description, prNumber)
+		return createTagMessage("features", "("+commitScope+"): "+commitDescription, prNumber)
 	case "fix":
-		return createTagMessage("fixed", parsedPrTitle.Description, prNumber)
-    case "chore":
-		return createTagMessage("chores", parsedPrTitle.Description, prNumber)
+		return createTagMessage("fixed", "("+commitScope+"): "+commitDescription, prNumber)
+	case "chore":
+		return createTagMessage("chores", "("+commitScope+"): "+commitDescription, prNumber)
 	case "perf":
-		return createTagMessage("improvements", parsedPrTitle.Description, prNumber)
+		return createTagMessage("improvements", "("+commitScope+"): "+commitDescription, prNumber)
 	default:
 		// we map just the above ones to tag-police types: https://github.com/TrueLayer/tag-police/blob/master/tag_template.yml
 		// if not mapped, just use the release notes and add the type
-		return createTagMessage("release_notes", parsedPrTitle.Type + ": " + parsedPrTitle.Description, prNumber)
-    }
+		return createTagMessage("release_notes", commitType+"("+commitScope+"): "+commitDescription, prNumber)
+	}
 }
 
 func createTagMessage(sectionName string, singleItem string, prNumber int) string {
 	var message strings.Builder
-	message.WriteString("%s:\n", sectionName)
+	message.WriteString(fmt.Sprintf("%s:\n", sectionName))
 	message.WriteString(fmt.Sprintf("  - \"%s [#%s]\"\n", singleItem, prNumber))
 	return message.String()
-}
-
-func getTagMessageForLabelBasedIncrement(ctx context.Context, client *github.Client, repoOwner, repoName string, prNumber int) (string, error) {
-	var message strings.Builder
-	commits, _, err := client.PullRequests.ListCommits(ctx, repoOwner, repoName, prNumber, &github.ListOptions{})
-	if err != nil {
-		return "", err
-	}
-	message.WriteString("release_notes:\n")
-	for _, commit := range commits {
-		if cm := commit.Commit.GetMessage(); cm != "" {
-			message.WriteString(fmt.Sprintf("  - [%s] %s\n", commit.GetSHA()[:9], cm))
-		}
-	}
-
-	return message.String(), nil
 }
