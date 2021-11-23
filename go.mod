@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/bradleyfalzon/ghinstallation v1.1.1
-	github.com/gin-gonic/gin v1.7.4
+	github.com/gin-gonic/gin v1.7.6
 	github.com/google/go-github/v35 v35.3.0
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/kr/pretty v0.3.0
