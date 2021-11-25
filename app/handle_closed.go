@@ -49,6 +49,8 @@ func (a *app) handleClosed(ctx context.Context, client *github.Client, prEvent *
 		// PR does not have any of the following:
 		// - a semantic title
 		// - a valid label set
+		commentBody := fmt.Sprintf("Github-releaser is installed in this repository but could not create any tag. PR title is not semantic and there are no labels.")
+		createComment(ctx, client, pr.GetNumber(), repoOwner, repoName, commentBody)
 		return nil
 	}
 
