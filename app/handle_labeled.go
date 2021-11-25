@@ -65,14 +65,22 @@ func (a *app) handleLabeled(ctx context.Context, client *github.Client, prEvent 
 	}
 
 	commitSHA := head.GetSHA()
-	prNum := pr.GetNumber()
-	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, prNum, a.impersonateTags)
+	prNumber := pr.GetNumber()
+	tagMessage, error := getTagMessageForLabelBasedIncrement(ctx, client, repoOwner, repoName, prNumber)
+
+	if error != nil {
+		commentBody := fmt.Sprintf("Failed to make tag: `%s`", err.Error())
+		createComment(ctx, client, pr.GetNumber(), repoOwner, repoName, commentBody)
+		return err
+	}
+
+	err = createTag(ctx, client, repoOwner, repoName, commitSHA, versionNum, tagMessage, prNumber, a.impersonateTags)
 	if err != nil {
 		commentBody := fmt.Sprintf("Failed to make tag: `%s`", err.Error())
 		createComment(ctx, client, pr.GetNumber(), repoOwner, repoName, commentBody)
 		return err
 	}
 
-	_, err = client.Issues.RemoveLabelForIssue(ctx, repoOwner, repoName, prNum, labelName)
+	_, err = client.Issues.RemoveLabelForIssue(ctx, repoOwner, repoName, prNumber, labelName)
 	return err
 }
