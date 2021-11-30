@@ -7,6 +7,12 @@ import (
 	"github.com/google/go-github/v35/github"
 )
 
+var (
+	excludeRepos = []string{
+		"https://github.com/TrueLayer/prisma-tbd",
+	}
+)
+
 func (r *rpc) Webhooks(ctx *gin.Context) {
 	payload, err := github.ValidatePayload(ctx.Request, r.webhookSecretKey)
 	if err != nil {
@@ -20,6 +26,10 @@ func (r *rpc) Webhooks(ctx *gin.Context) {
 	}
 
 	if prEvent, ok := event.(*github.PullRequestEvent); ok {
+		if contains(excludeRepos, *prEvent.Repo.URL) {
+			return
+		}
+
 		err := r.app.HandleWebhook(ctx, prEvent)
 		if err != nil {
 			ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -28,4 +38,14 @@ func (r *rpc) Webhooks(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusOK)
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
