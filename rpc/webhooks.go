@@ -2,23 +2,19 @@ package rpc
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-github/v35/github"
 )
 
-var (
-	excludeRepos = []string{
-		"https://github.com/TrueLayer/prisma-tbd",
-	}
-)
-
-func (r *rpc) Webhooks(ctx *gin.Context) {
+func (r *rpc) Webhooks(ctx *gin.Context, excludeRepos []string) {
 	payload, err := github.ValidatePayload(ctx.Request, r.webhookSecretKey)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+
 	event, err := github.ParseWebHook(github.WebHookType(ctx.Request), payload)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
@@ -26,7 +22,8 @@ func (r *rpc) Webhooks(ctx *gin.Context) {
 	}
 
 	if prEvent, ok := event.(*github.PullRequestEvent); ok {
-		if contains(excludeRepos, *prEvent.Repo.URL) {
+		// terminate if repo substr URL is in the flags
+		if excludeRepo(excludeRepos, *prEvent.Repo.URL) {
 			return
 		}
 
@@ -40,11 +37,12 @@ func (r *rpc) Webhooks(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
+// Function that iterates over array of repo subString urls
+func excludeRepo(excludeRepo []string, repoUrl string) bool {
+	for _, repoUrlSubstr := range excludeRepo {
+
+		return strings.Contains(repoUrl, repoUrlSubstr)
+
 	}
 
 	return false

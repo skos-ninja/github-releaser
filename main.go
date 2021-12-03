@@ -6,14 +6,15 @@ import (
 	"os"
 	"strings"
 
-	"github.com/skos-ninja/github-releaser/app"
-	"github.com/skos-ninja/github-releaser/rpc"
-
 	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-github/v35/github"
-	"github.com/skos-ninja/config-loader"
 	"github.com/spf13/cobra"
+
+	"github.com/skos-ninja/config-loader"
+	"github.com/skos-ninja/github-releaser/app"
+	. "github.com/skos-ninja/github-releaser/pkg/common"
+	"github.com/skos-ninja/github-releaser/rpc"
 )
 
 var (
@@ -34,6 +35,7 @@ func init() {
 	cmd.Flags().String("webhooksecret", cfg.Github.WebhookSecretKey, "")
 	cmd.Flags().String("privatekey", cfg.Github.PrivateKey, "")
 	cmd.Flags().String("enterpriseurl", cfg.Github.EnterpriseURL, "")
+	cmd.Flags().StringArray("excluderepos", cfg.ExcludeRepos, "List of repos to exclude")
 }
 
 func main() {
@@ -51,10 +53,12 @@ func runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
 	app, err := app.New(appTr, client, cfg.ImpersonateTags)
 	if err != nil {
 		return err
 	}
+
 	rpc := rpc.New(app, cfg.Github.WebhookSecretKey)
 
 	router := gin.Default()
@@ -63,7 +67,12 @@ func runE(cmd *cobra.Command, args []string) error {
 		ctx.String(http.StatusOK, "Ok")
 	})
 
-	router.POST("/webhooks", rpc.Webhooks)
+	router.POST("/webhooks", func(c *gin.Context) {
+		// get the '--excluderepos' flag value
+		excludeRepos, _ := cmd.Flags().GetStringArray("excluderepos")
+
+		rpc.Webhooks(c, excludeRepos)
+	})
 
 	return router.Run(fmt.Sprintf(":%v", cfg.Port))
 }

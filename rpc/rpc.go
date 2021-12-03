@@ -1,13 +1,13 @@
 package rpc
 
 import (
-	"github.com/skos-ninja/github-releaser/app"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/skos-ninja/github-releaser/app"
 )
 
 type RPC interface {
-	Webhooks(ctx *gin.Context)
+	Webhooks(ctx *gin.Context, excludeRepos []string)
 }
 
 type rpc struct {
