@@ -2,13 +2,13 @@ package rpc
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-github/v35/github"
+	"github.com/skos-ninja/github-releaser/pkg/common"
 )
 
-func (r *rpc) Webhooks(ctx *gin.Context, excludeRepos []string) {
+func (r *rpc) Webhooks(ctx *gin.Context) {
 	payload, err := github.ValidatePayload(ctx.Request, r.webhookSecretKey)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
@@ -22,8 +22,8 @@ func (r *rpc) Webhooks(ctx *gin.Context, excludeRepos []string) {
 	}
 
 	if prEvent, ok := event.(*github.PullRequestEvent); ok {
-		// terminate if repo substr URL is in the flags
-		if excludeRepo(excludeRepos, *prEvent.Repo.URL) {
+		// terminate if repo name is set to be excluded
+		if common.Contains(r.excludedRepos, prEvent.Repo.GetFullName()) {
 			return
 		}
 
@@ -35,15 +35,4 @@ func (r *rpc) Webhooks(ctx *gin.Context, excludeRepos []string) {
 	}
 
 	ctx.Status(http.StatusOK)
-}
-
-// Function that iterates over array of repo subString urls
-func excludeRepo(excludeRepo []string, repoUrl string) bool {
-	for _, repoUrlSubstr := range excludeRepo {
-
-		return strings.Contains(repoUrl, repoUrlSubstr)
-
-	}
-
-	return false
 }

@@ -7,14 +7,15 @@ import (
 )
 
 type RPC interface {
-	Webhooks(ctx *gin.Context, excludeRepos []string)
+	Webhooks(ctx *gin.Context)
 }
 
 type rpc struct {
 	app              app.App
 	webhookSecretKey []byte
+	excludedRepos    []string
 }
 
-func New(app app.App, webhookSecretKey string) RPC {
-	return &rpc{app, []byte(webhookSecretKey)}
+func New(app app.App, webhookSecretKey string, excludedRepos []string) RPC {
+	return &rpc{app, []byte(webhookSecretKey), excludedRepos}
 }

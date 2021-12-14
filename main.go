@@ -59,7 +59,7 @@ func runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	rpc := rpc.New(app, cfg.Github.WebhookSecretKey)
+	rpc := rpc.New(app, cfg.Github.WebhookSecretKey, cfg.ExcludeRepos)
 
 	router := gin.Default()
 
@@ -67,12 +67,7 @@ func runE(cmd *cobra.Command, args []string) error {
 		ctx.String(http.StatusOK, "Ok")
 	})
 
-	router.POST("/webhooks", func(c *gin.Context) {
-		// get the '--excluderepos' flag value
-		excludeRepos, _ := cmd.Flags().GetStringArray("excluderepos")
-
-		rpc.Webhooks(c, excludeRepos)
-	})
+	router.POST("/webhooks", rpc.Webhooks)
 
 	return router.Run(fmt.Sprintf(":%v", cfg.Port))
 }

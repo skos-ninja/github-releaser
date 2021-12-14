@@ -37,4 +37,4 @@ ENV GIN_MODE=release
 
 EXPOSE 8080
 
-ENTRYPOINT ["./main", "--excluderepos", "TrueLayer/prisma-tbd"]
+ENTRYPOINT ["./main"]
