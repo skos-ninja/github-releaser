@@ -1,9 +1,9 @@
 package rpc
 
 import (
-	"github.com/skos-ninja/github-releaser/app"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/skos-ninja/github-releaser/app"
 )
 
 type RPC interface {
@@ -13,8 +13,9 @@ type RPC interface {
 type rpc struct {
 	app              app.App
 	webhookSecretKey []byte
+	excludedRepos    []string
 }
 
-func New(app app.App, webhookSecretKey string) RPC {
-	return &rpc{app, []byte(webhookSecretKey)}
+func New(app app.App, webhookSecretKey string, excludedRepos []string) RPC {
+	return &rpc{app, []byte(webhookSecretKey), excludedRepos}
 }
