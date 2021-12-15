@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/google/go-github/v35/github"
+	"github.com/google/go-github/v41/github"
 )
 
 func createTag(ctx context.Context, client *github.Client, repoOwner, repoName, commitSHA, version string, prNumber int, impersonateTags bool) error {

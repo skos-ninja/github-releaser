@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bradleyfalzon/ghinstallation"
+	ghinstallation "github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/google/go-github/v35/github"
+	"github.com/google/go-github/v41/github"
 	"github.com/skos-ninja/config-loader"
 	"github.com/spf13/cobra"
 

@@ -8,7 +8,7 @@ import (
 
 	"github.com/skos-ninja/github-releaser/pkg/version"
 
-	"github.com/google/go-github/v35/github"
+	"github.com/google/go-github/v41/github"
 )
 
 func (a *app) handleLabeled(ctx context.Context, client *github.Client, prEvent *github.PullRequestEvent) error {
