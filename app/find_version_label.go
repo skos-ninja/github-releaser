@@ -5,7 +5,7 @@ import (
 
 	"github.com/skos-ninja/github-releaser/pkg/version"
 
-	"github.com/google/go-github/v35/github"
+	"github.com/google/go-github/v41/github"
 )
 
 func findVersionLabel(labels []*github.Label, includePre bool) (*version.VersionType, string) {

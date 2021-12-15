@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Masterminds/semver"
-	"github.com/google/go-github/v35/github"
+	"github.com/Masterminds/semver/v3"
+	"github.com/google/go-github/v41/github"
 )
 
 func getLatestVersion(ctx context.Context, client *github.Client, repoOwner, repoName string) (string, error) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/google/go-github/v35/github"
+	"github.com/google/go-github/v41/github"
 	"github.com/kr/pretty"
 )
 

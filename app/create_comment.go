@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	"github.com/google/go-github/v35/github"
+	"github.com/google/go-github/v41/github"
 )
 
 func createComment(ctx context.Context, client *github.Client, prNum int, repoOwner, repoName, comment string) error {
