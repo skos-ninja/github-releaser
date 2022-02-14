@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/kr/pretty v0.3.0
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
-	github.com/skos-ninja/config-loader v0.1.1
+	github.com/skos-ninja/config-loader v0.1.3
 	github.com/spf13/cobra v1.3.0
 	github.com/ugorji/go v1.2.6 // indirect
 	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b // indirect
