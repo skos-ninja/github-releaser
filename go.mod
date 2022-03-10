@@ -14,7 +14,7 @@ require (
 	github.com/kr/pretty v0.3.0
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/skos-ninja/config-loader v0.1.1
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.4.0
 	github.com/ugorji/go v1.2.6 // indirect
 	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
