@@ -11,8 +11,7 @@ require (
 	github.com/google/go-github/v39 v39.2.0 // indirect
 	github.com/google/go-github/v41 v41.0.0
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/kr/pretty v0.3.0
-	github.com/rogpeppe/go-internal v1.8.1 // indirect
+	github.com/kr/pretty v0.3.1
 	github.com/skos-ninja/config-loader v0.1.1
 	github.com/spf13/cobra v1.3.0
 	github.com/ugorji/go v1.2.6 // indirect
