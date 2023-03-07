@@ -16,7 +16,6 @@ require (
 	github.com/skos-ninja/config-loader v0.1.1
 	github.com/spf13/cobra v1.3.0
 	github.com/ugorji/go v1.2.6 // indirect
-	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20211214234402-4825e8c3871d // indirect
+	golang.org/x/crypto v0.1.0 // indirect
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 )
